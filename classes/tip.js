@@ -1,6 +1,4 @@
 function Tip(context) {
-	this.width = Math.floor(15 * Math.random()) + 5;
-	this.height = Math.floor(100 * Math.random()) + 100;
 	this.x = context.canvas.clientWidth / 2;
 	this.y = context.canvas.clientHeight / 2;
 	this.ctx = context;
