@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<title></title>
+	<style type="text/css">
+		body {
+			background-color: #bbb;
+		}
+
+		#canvas-wrapper {
+			width: 1024px;
+			height: 768px;
+			margin: 0 auto;
+		}
+
+		#canvas {
+			background-color: #fff;
+		}
+	</style>
+</head>
+<body>
+<div id="canvas-wrapper">
+	<canvas id="canvas" width="1024" height="456"></canvas>
+</div>
+<script src="utils.js"></script>
+<script src="keycode.js"></script>
+<script src="classes/bg.js"></script>
+<script src="classes/hero.js"></script>
+<script src="classes/zhuzi.js"></script>
+<script src="classes/tip.js"></script>
+<script type="text/javascript">
+	window.onload = function () {
+		document.onkeydown = function (e) {
+			if (e.keyCode == keycode.SPACE) {
+				e.keyCode = 0;
+				return false;
+			}
+		}
+
+		var arr = ["./assets/bg.png", "./assets/hero.png"];
+		var count = 0;
+		arr.forEach(function (element, index, arr) {
+			var img = new Image();
+			img.src = element;
+			img.onload = function () {
+				if (arr.length == ++count) {
+					initGame();
+				}
+			}
+		});
+
+		function initGame() {
+			var canvas = document.getElementById('canvas');
+			var ctx = canvas.getContext("2d");
+
+			var bg, bg2, hero, zhuziArr = [], tip;
+			var vx = 3;
+
+			initBg(ctx);
+			initHero(ctx);
+			initZhuZi(ctx);
+			initTip(ctx);
+
+			window.addEventListener('keydown', onEvent, false);
+			window.addEventListener('touchstart', onEvent, false);
+			window.addEventListener('click', onEvent, false);
+
+			function onEvent(event) {
+				hero.jump();
+			}
+
+			(function drawFrame() {
+				ctx.clearRect(0, 0, canvas.width, canvas.height);
+				bg.x -= vx;
+				if (bg2) {
+					bg2.x -= vx;
+				}
+				if ((bg.x < -(bg.width - ctx.canvas.clientWidth)) && !bg2) {
+					bg2 = new Bg(ctx);
+					bg2.x = ctx.canvas.clientWidth;
+				}
+				if (bg.x < -bg.width) {
+					bg = bg2;
+					bg2 = null;
+				}
+				bg.draw();
+				if (bg2) {
+					bg2.draw();
+				}
+				hero.draw();
+				zhuziArr.forEach(function (element, index, arr) {
+					element.x -= 3;
+					if (element.x < -element.width) {
+						zhuziArr.shift();
+					} else {
+						element.draw();
+						if (hero.x + hero.width * hero.scaleX / 2 > element.x - element.width / 2 &&
+								hero.x - hero.width * hero.scaleX / 2 < element.x - element.width / 2 &&
+								hero.y + hero.height * hero.scaleY / 2 > element.y - element.height / 2) {
+							tip.tip("额 别碰柱子！")
+						}
+					}
+				});
+				tip.draw();
+				window.requestAnimationFrame(drawFrame, canvas);
+			})();
+
+			function initBg(ctx) {
+				bg = new Bg(ctx);
+			}
+
+			function initHero(ctx) {
+				hero = new Hero(ctx);
+				hero.x = 100;
+				hero.y = 250;
+			}
+
+			function initZhuZi(ctx) {
+				createZhuzi();
+				function createZhuzi() {
+					var zhuzi = new ZhuZi(ctx);
+					zhuzi.x = ctx.canvas.clientWidth;
+					zhuziArr.push(zhuzi);
+					setTimeout(createZhuzi, Math.random() * 3000 + 3000);
+				}
+			}
+
+			function initTip(ctx) {
+				tip = new Tip(ctx);
+			}
+		}
+	}
+</script>
+</body>
+</html>
