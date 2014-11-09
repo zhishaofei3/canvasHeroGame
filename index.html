@@ -91,7 +91,7 @@
 				}
 				hero.draw();
 				zhuziArr.forEach(function (element, index, arr) {
-					element.x -= 3;
+					element.x -= vx;
 					if (element.x < -element.width) {
 						zhuziArr.shift();
 					} else {
